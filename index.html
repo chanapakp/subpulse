@@ -196,7 +196,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">ชื่อบริการ</label>
-                        <input type="text" id="subName" required placeholder="เช่น Netflix, Office 365" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <input type="text" id="subName" required placeholder="เช่น Netflix, ChatGPT" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">ราคา (บาท)</label>
@@ -221,10 +221,12 @@
                     <div>
                         <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">หมวดหมู่</label>
                         <select id="subCategory" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
-                            <option value="บันเทิง">บันเทิง (Streaming, Game)</option>
-                            <option value="การทำงาน">การทำงาน (Software, Cloud)</option>
-                            <option value="ยูทิลิตี้">ยูทิลิตี้ (Internet, Phone)</option>
-                            <option value="สุขภาพ/ไลฟ์สไตล์">สุขภาพ/ไลฟ์สไตล์ (Gym, App)</option>
+                            <option value="AI & Automation">AI & Automation (ปัญญาประดิษฐ์)</option>
+                            <option value="Entertainment">Entertainment & Streaming (ความบันเทิง)</option>
+                            <option value="Software & Cloud">Software & Cloud Storage (ซอฟต์แวร์/คลาวด์)</option>
+                            <option value="Utilities">Utilities & Infrastructure (ยูทิลิตี้)</option>
+                            <option value="Health & Lifestyle">Health, Fitness & Lifestyle (สุขภาพ/ไลฟ์สไตล์)</option>
+                            <option value="Education">News, Reading & Education (การเรียนรู้/ข่าวสาร)</option>
                             <option value="อื่นๆ">อื่นๆ</option>
                         </select>
                     </div>
@@ -277,10 +279,10 @@
 
     <script>
         let subscriptions = JSON.parse(localStorage.getItem('subpulse_subscriptions')) || [
-            { id: '1', name: 'Netflix Premium', price: 419, cycle: 'monthly', category: 'บันเทิง', date: '2026-10-25', status: 'active', note: 'แชร์กับครอบครัว' },
-            { id: '2', name: 'Spotify Family', price: 209, cycle: 'monthly', category: 'บันเทิง', date: '2026-10-18', status: 'active', note: '' },
-            { id: '3', name: 'GitHub Copilot', price: 3500, cycle: 'yearly', category: 'การทำงาน', date: '2026-12-10', status: 'active', note: 'รายปีคุ้มกว่า' },
-            { id: '4', name: 'Cloud Storage (iCloud)', price: 99, cycle: 'monthly', category: 'การทำงาน', date: '2026-10-12', status: 'active', note: '200GB' }
+            { id: '1', name: 'Netflix Premium', price: 419, cycle: 'monthly', category: 'Entertainment', date: '2026-10-25', status: 'active', note: 'แชร์กับครอบครัว' },
+            { id: '2', name: 'Spotify Family', price: 209, cycle: 'monthly', category: 'Entertainment', date: '2026-10-18', status: 'active', note: '' },
+            { id: '3', name: 'GitHub Copilot', price: 3500, cycle: 'yearly', category: 'AI & Automation', date: '2026-12-10', status: 'active', note: 'รายปีคุ้มกว่า' },
+            { id: '4', name: 'Cloud Storage (iCloud)', price: 99, cycle: 'monthly', category: 'Software & Cloud', date: '2026-10-12', status: 'active', note: '200GB' }
         ];
 
         let categoryChartInstance = null;
@@ -460,7 +462,7 @@
             let domain = '';
             if (lowerName.includes('netflix')) domain = 'netflix.com';
             else if (lowerName.includes('spotify')) domain = 'spotify.com';
-            else if (lowerName.includes('github')) domain = 'github.com';
+            else if (lowerName.includes('github') || lowerName.includes('copilot')) domain = 'github.com';
             else if (lowerName.includes('icloud') || lowerName.includes('apple')) domain = 'apple.com';
             else if (lowerName.includes('youtube')) domain = 'youtube.com';
             else if (lowerName.includes('google')) domain = 'google.com';
@@ -642,7 +644,8 @@
                             '#f59e0b',
                             '#ef4444',
                             '#8b5cf6',
-                            '#ec4899'
+                            '#ec4899',
+                            '#06b6d4'
                         ],
                         borderWidth: 0,
                         hoverOffset: 4
