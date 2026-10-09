@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="th" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SubPulse - บริหารจัดการ Subscription ของคุณ</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Inter & Prompt -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Prompt', 'Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Prompt', 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-300">
+    <div class="flex flex-col min-h-screen">
+        <!-- Top Navigation -->
+        <header class="sticky top-0 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
+                <div class="flex items-center space-x-2.5">
+                    <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
+                        <i class="fa-solid fa-wallet text-sm sm:text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-base sm:text-lg leading-tight bg-gradient-to-r from-brand-600 to-indigo-400 bg-clip-text text-transparent">SubPulse</h1>
+                        <p class="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400">Subscription Tracker</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <button onclick="openModal()" class="inline-flex items-center space-x-1.5 bg-brand-600 hover:bg-brand-700 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium shadow-md shadow-brand-500/20 transition-all duration-200 transform active:scale-95">
+                        <i class="fa-solid fa-plus text-xs"></i>
+                        <span>เพิ่ม</span>
+                    </button>
+                    <button onclick="toggleDarkMode()" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
+                        <i id="themeIcon" class="fa-solid fa-moon text-xs sm:text-sm"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-4 sm:space-y-6">
+            
+            <!-- Statistics Cards -->
+            <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+                <!-- Monthly Expense -->
+                <div class="bg-white dark:bg-slate-900 p-3.5 sm:p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm relative overflow-hidden">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] sm:text-sm font-medium text-slate-500 dark:text-slate-400">จ่ายต่อเดือน</span>
+                        <div class="w-7 h-7 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-brand-50 dark:bg-brand-950/50 text-brand-600 flex items-center justify-center text-xs sm:text-base">
+                            <i class="fa-solid fa-calendar-days"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2 sm:mt-4">
+                        <span id="statMonthly" class="text-lg sm:text-3xl font-bold tracking-tight">฿0.00</span>
+                    </div>
+                    <p class="mt-0.5 text-[10px] text-slate-400">เฉลี่ยจากที่ใช้งาน</p>
+                </div>
+
+                <!-- Yearly Expense -->
+                <div class="bg-white dark:bg-slate-900 p-3.5 sm:p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm relative overflow-hidden">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] sm:text-sm font-medium text-slate-500 dark:text-slate-400">จ่ายต่อปี</span>
+                        <div class="w-7 h-7 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 flex items-center justify-center text-xs sm:text-base">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2 sm:mt-4">
+                        <span id="statYearly" class="text-lg sm:text-3xl font-bold tracking-tight">฿0.00</span>
+                    </div>
+                    <p class="mt-0.5 text-[10px] text-slate-400">คาดการณ์รวม</p>
+                </div>
+
+                <!-- Active Count -->
+                <div class="bg-white dark:bg-slate-900 p-3.5 sm:p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm relative overflow-hidden">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] sm:text-sm font-medium text-slate-500 dark:text-slate-400">ใช้งานอยู่</span>
+                        <div class="w-7 h-7 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 flex items-center justify-center text-xs sm:text-base">
+                            <i class="fa-solid fa-bolt"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2 sm:mt-4 flex items-baseline space-x-1">
+                        <span id="statActive" class="text-lg sm:text-3xl font-bold tracking-tight">0</span>
+                        <span class="text-xs text-slate-400">/ <span id="statTotal">0</span> รายการ</span>
+                    </div>
+                    <p class="mt-0.5 text-[10px] text-slate-400">สถานะปัจจุบัน</p>
+                </div>
+
+                <!-- Upcoming Renewal -->
+                <div class="bg-white dark:bg-slate-900 p-3.5 sm:p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm relative overflow-hidden">
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] sm:text-sm font-medium text-slate-500 dark:text-slate-400">รอบบิลถัดไป</span>
+                        <div class="w-7 h-7 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 flex items-center justify-center text-xs sm:text-base">
+                            <i class="fa-solid fa-clock"></i>
+                        </div>
+                    </div>
+                    <div class="mt-2 sm:mt-4">
+                        <span id="statUpcoming" class="text-xs sm:text-lg font-bold tracking-tight block truncate">-</span>
+                    </div>
+                    <p id="statUpcomingDate" class="mt-0.5 text-[10px] text-slate-400 truncate">ไม่มีรายการเร็วๆ นี้</p>
+                </div>
+            </section>
+
+            <section class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+                <!-- Category Chart -->
+                <div class="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm lg:col-span-1 flex flex-col">
+                    <div class="flex items-center justify-between mb-2 sm:mb-4">
+                        <h2 class="font-semibold text-sm sm:text-base">สัดส่วนค่าใช้จ่าย</h2>
+                        <i class="fa-solid fa-chart-pie text-slate-400 text-xs"></i>
+                    </div>
+                    <div class="relative flex-1 flex items-center justify-center min-h-[140px] max-h-[180px] sm:min-h-[220px]">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Filter & Controls & List Area -->
+                <div class="bg-white dark:bg-slate-900 p-4 sm:p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm lg:col-span-2 flex flex-col">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+                        <div>
+                            <h2 class="font-semibold text-sm sm:text-base">รายการ Subscription</h2>
+                            <p class="text-[11px] text-slate-500 dark:text-slate-400">เรียงตามวันที่ใกล้ครบกำหนด</p>
+                        </div>
+                        <div class="flex items-center space-x-2 w-full sm:w-auto">
+                            <div class="relative flex-1 sm:flex-initial">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                                    <i class="fa-solid fa-search text-xs"></i>
+                                </span>
+                                <input type="text" id="searchInput" oninput="renderApp()" placeholder="ค้นหาบริการ..." class="w-full sm:w-44 pl-8 pr-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            </div>
+                            <select id="filterStatus" onchange="renderApp()" class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                <option value="all">ทั้งหมด</option>
+                                <option value="active">Active</option>
+                                <option value="cancelled">ยกเลิก</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Subscription List Area -->
+                    <div class="flex-1">
+                        <div id="subListContainer" class="space-y-2.5">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="border-t border-slate-200 dark:border-slate-800 py-4 text-center text-[11px] text-slate-500 dark:text-slate-400">
+            <p>SubPulse - Subscription Tracker</p>
+        </footer>
+    </div>
+
+    <!-- Modal Form -->
+    <div id="subModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-200 dark:border-slate-800 relative animate-in fade-in zoom-in-95 duration-200">
+            <div class="flex items-center justify-between mb-6">
+                <h3 id="modalTitle" class="text-lg font-bold">เพิ่ม Subscription ใหม่</h3>
+                <button onclick="closeModal()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+            </div>
+
+            <form id="subForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
+                <input type="hidden" id="subId">
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">ชื่อบริการ</label>
+                        <input type="text" id="subName" required placeholder="เช่น Netflix, Spotify" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">ราคา (บาท)</label>
+                        <input type="number" step="0.01" min="0" id="subPrice" required placeholder="149" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">รอบการจ่าย</label>
+                        <select id="subCycle" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="monthly">รายเดือน</option>
+                            <option value="half-yearly">ราย 6 เดือน</option>
+                            <option value="yearly">รายปี</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">หมวดหมู่</label>
+                        <select id="subCategory" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="บันเทิง">บันเทิง (Streaming, Game)</option>
+                            <option value="การทำงาน">การทำงาน (Software, Cloud)</option>
+                            <option value="ยูทิลิตี้">ยูทิลิตี้ (Internet, Phone)</option>
+                            <option value="สุขภาพ/ไลฟ์สไตล์">สุขภาพ/ไลฟ์สไตล์ (Gym, App)</option>
+                            <option value="อื่นๆ">อื่นๆ</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">วันที่ตัดรอบ / ครบกำหนด</label>
+                        <!-- กำหนด w-full max-w-full box-border ควบคุมไม่ให้ล้นออกนอกกล่อง -->
+                        <input type="date" id="subDate" required class="w-full max-w-full box-border px-3 sm:px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">สถานะ</label>
+                        <select id="subStatus" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <option value="active">Active (ใช้งานอยู่)</option>
+                            <option value="cancelled">Cancelled (ยกเลิกแล้ว)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">โน้ตเพิ่มเติม (ถ้ามี)</label>
+                    <input type="text" id="subNote" placeholder="เช่น แชร์กับเพื่อน 4 คน" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+
+                <div class="flex items-center justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeModal()" class="px-5 py-2.5 rounded-xl text-sm font-medium border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                        ยกเลิก
+                    </button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl text-sm font-medium bg-brand-600 hover:bg-brand-700 text-white shadow-md shadow-brand-500/20 transition-all">
+                        บันทึกข้อมูล
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Custom Notification/Confirm Modal -->
+    <div id="alertModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm hidden">
+        <div class="bg-white dark:bg-slate-900 rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 dark:border-slate-800 text-center">
+            <div id="alertIcon" class="w-12 h-12 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center mx-auto mb-4 text-xl">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <h4 id="alertTitle" class="font-bold text-base mb-1">แจ้งเตือน</h4>
+            <p id="alertMessage" class="text-xs text-slate-500 dark:text-slate-400 mb-6">ข้อความแจ้งเตือน</p>
+            <div id="alertButtons" class="flex space-x-3 justify-center">
+                <button onclick="closeAlert()" class="px-5 py-2 rounded-xl bg-brand-600 text-white text-xs font-medium">ตกลง</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let subscriptions = JSON.parse(localStorage.getItem('subpulse_subscriptions')) || [
+            { id: '1', name: 'Netflix Premium', price: 419, cycle: 'monthly', category: 'บันเทิง', date: '2026-10-25', status: 'active', note: 'แชร์กับครอบครัว' },
+            { id: '2', name: 'Spotify Family', price: 209, cycle: 'monthly', category: 'บันเทิง', date: '2026-10-18', status: 'active', note: '' },
+            { id: '3', name: 'GitHub Copilot', price: 3500, cycle: 'yearly', category: 'การทำงาน', date: '2026-12-10', status: 'active', note: 'รายปีคุ้มกว่า' },
+            { id: '4', name: 'Cloud Storage (iCloud)', price: 99, cycle: 'monthly', category: 'การทำงาน', date: '2026-10-12', status: 'active', note: '200GB' }
+        ];
+
+        let categoryChartInstance = null;
+
+        if (localStorage.getItem('subpulse_theme') === 'dark' || (!localStorage.getItem('subpulse_theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            document.getElementById('themeIcon').className = 'fa-solid fa-sun';
+        }
+
+        function toggleDarkMode() {
+            if (document.documentElement.classList.contains('dark')) {
+                document.documentElement.classList.remove('dark');
+                localStorage.setItem('subpulse_theme', 'light');
+                document.getElementById('themeIcon').className = 'fa-solid fa-moon';
+            } else {
+                document.documentElement.classList.add('dark');
+                localStorage.setItem('subpulse_theme', 'dark');
+                document.getElementById('themeIcon').className = 'fa-solid fa-sun';
+            }
+            updateCategoryChart();
+        }
+
+        function openModal(editId = null) {
+            const modal = document.getElementById('subModal');
+            const form = document.getElementById('subForm');
+            form.reset();
+            document.getElementById('subId').value = '';
+
+            if (editId) {
+                document.getElementById('modalTitle').innerText = 'แก้ไข Subscription';
+                const sub = subscriptions.find(s => s.id === editId);
+                if (sub) {
+                    document.getElementById('subId').value = sub.id;
+                    document.getElementById('subName').value = sub.name;
+                    document.getElementById('subPrice').value = sub.price;
+                    document.getElementById('subCycle').value = sub.cycle;
+                    document.getElementById('subCategory').value = sub.category;
+                    document.getElementById('subDate').value = sub.date;
+                    document.getElementById('subStatus').value = sub.status;
+                    document.getElementById('subNote').value = sub.note || '';
+                }
+            } else {
+                document.getElementById('modalTitle').innerText = 'เพิ่ม Subscription ใหม่';
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('subDate').value = today;
+            }
+
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('subModal').classList.add('hidden');
+        }
+
+        function showAlert(title, message, isConfirm = false, onConfirm = null) {
+            const modal = document.getElementById('alertModal');
+            document.getElementById('alertTitle').innerText = title;
+            document.getElementById('alertMessage').innerText = message;
+            const btnContainer = document.getElementById('alertButtons');
+            
+            if (isConfirm) {
+                btnContainer.innerHTML = `
+                    <button onclick="closeAlert()" class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-medium">ยกเลิก</button>
+                    <button id="confirmYesBtn" class="px-4 py-2 rounded-xl bg-rose-600 text-white text-xs font-medium">ยืนยัน</button>
+                `;
+                document.getElementById('confirmYesBtn').onclick = () => {
+                    onConfirm();
+                    closeAlert();
+                };
+            } else {
+                btnContainer.innerHTML = `<button onclick="closeAlert()" class="px-5 py-2 rounded-xl bg-brand-600 text-white text-xs font-medium">ตกลง</button>`;
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeAlert() {
+            document.getElementById('alertModal').classList.add('hidden');
+        }
+
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            const id = document.getElementById('subId').value;
+            const name = document.getElementById('subName').value;
+            const price = parseFloat(document.getElementById('subPrice').value);
+            const cycle = document.getElementById('subCycle').value;
+            const category = document.getElementById('subCategory').value;
+            const date = document.getElementById('subDate').value;
+            const status = document.getElementById('subStatus').value;
+            const note = document.getElementById('subNote').value;
+
+            if (id) {
+                subscriptions = subscriptions.map(s => s.id === id ? { id, name, price, cycle, category, date, status, note } : s);
+            } else {
+                const newSub = {
+                    id: Date.now().toString(),
+                    name, price, cycle, category, date, status, note
+                };
+                subscriptions.push(newSub);
+            }
+
+            saveAndRender();
+            closeModal();
+        }
+
+        function deleteSub(id) {
+            showAlert('ยืนยันการลบ', 'คุณต้องการลบรายการนี้ใช่หรือไม่?', true, () => {
+                subscriptions = subscriptions.filter(s => s.id !== id);
+                saveAndRender();
+            });
+        }
+
+        function saveAndRender() {
+            localStorage.setItem('subpulse_subscriptions', JSON.stringify(subscriptions));
+            renderApp();
+        }
+
+        function calculateMonthlyCost(sub) {
+            if (sub.status !== 'active') return 0;
+            if (sub.cycle === 'yearly') {
+                return sub.price / 12;
+            } else if (sub.cycle === 'half-yearly') {
+                return sub.price / 6;
+            }
+            return sub.price;
+        }
+
+        function calculateYearlyCost(sub) {
+            if (sub.status !== 'active') return 0;
+            if (sub.cycle === 'yearly') {
+                return sub.price;
+            } else if (sub.cycle === 'half-yearly') {
+                return sub.price * 2;
+            }
+            return sub.price * 12;
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('th-TH', options);
+        }
+
+        function getDaysUntil(dateString) {
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            const target = new Date(dateString);
+            target.setHours(0,0,0,0);
+            const diffTime = target - today;
+            return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        }
+
+        function getServiceIcon(name) {
+            const lowerName = name.toLowerCase();
+            let domain = '';
+            if (lowerName.includes('netflix')) domain = 'netflix.com';
+            else if (lowerName.includes('spotify')) domain = 'spotify.com';
+            else if (lowerName.includes('github')) domain = 'github.com';
+            else if (lowerName.includes('icloud') || lowerName.includes('apple')) domain = 'apple.com';
+            else if (lowerName.includes('youtube')) domain = 'youtube.com';
+            else if (lowerName.includes('google')) domain = 'google.com';
+            else if (lowerName.includes('chatgpt') || lowerName.includes('openai')) domain = 'openai.com';
+            else if (lowerName.includes('disney')) domain = 'disneyplus.com';
+            else if (lowerName.includes('prime')) domain = 'amazon.com';
+
+            if (domain) {
+                return `<img src="https://www.google.com/s2/favicons?domain=${domain}&sz=128" alt="${name}" class="w-full h-full object-cover rounded-xl" onerror="this.parentElement.innerHTML='${name.charAt(0).toUpperCase()}'">`;
+            }
+            return name.charAt(0).toUpperCase();
+        }
+
+        function renderApp() {
+            const searchVal = document.getElementById('searchInput').value.toLowerCase();
+            const filterVal = document.getElementById('filterStatus').value;
+
+            let filtered = subscriptions.filter(sub => {
+                const matchSearch = sub.name.toLowerCase().includes(searchVal) || sub.category.toLowerCase().includes(searchVal);
+                const matchStatus = filterVal === 'all' || sub.status === filterVal;
+                return matchSearch && matchStatus;
+            });
+
+            filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            let totalMonthly = 0;
+            let totalYearly = 0;
+            let activeCount = 0;
+            let upcomingSub = null;
+            let minDays = Infinity;
+
+            subscriptions.forEach(sub => {
+                if (sub.status === 'active') {
+                    activeCount++;
+                    totalMonthly += calculateMonthlyCost(sub);
+                    totalYearly += calculateYearlyCost(sub);
+
+                    const days = getDaysUntil(sub.date);
+                    if (days >= 0 && days < minDays) {
+                        minDays = days;
+                        upcomingSub = sub;
+                    }
+                }
+            });
+
+            document.getElementById('statMonthly').innerText = `฿${totalMonthly.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            document.getElementById('statYearly').innerText = `฿${totalYearly.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            document.getElementById('statActive').innerText = activeCount;
+            document.getElementById('statTotal').innerText = subscriptions.length;
+
+            if (upcomingSub) {
+                document.getElementById('statUpcoming').innerText = upcomingSub.name;
+                document.getElementById('statUpcomingDate').innerText = minDays === 0 ? 'ครบกำหนดวันนี้!' : `อีก ${minDays} วัน (${formatDate(upcomingSub.date)})`;
+            } else {
+                document.getElementById('statUpcoming').innerText = '-';
+                document.getElementById('statUpcomingDate').innerText = 'ไม่มีรายการเร็วๆ นี้';
+            }
+
+            const container = document.getElementById('subListContainer');
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-slate-400">
+                        <i class="fa-solid fa-receipt text-2xl mb-1 opacity-50"></i>
+                        <p class="text-xs">ไม่พบรายการ Subscription</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = filtered.map(sub => {
+                    const days = getDaysUntil(sub.date);
+                    let badgeClass = 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50';
+                    let badgeText = 'Active';
+                    if (sub.status === 'cancelled') {
+                        badgeClass = 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400';
+                        badgeText = 'ยกเลิก';
+                    } else if (days <= 3 && days >= 0) {
+                        badgeClass = 'bg-rose-50 text-rose-600 dark:bg-rose-950/50';
+                        badgeText = days === 0 ? 'วันนี้' : `อีก ${days} วัน`;
+                    }
+
+                    let cycleText = 'รายเดือน';
+                    let cycleShort = 'ด.';
+                    if (sub.cycle === 'yearly') {
+                        cycleText = 'รายปี';
+                        cycleShort = 'ปี';
+                    } else if (sub.cycle === 'half-yearly') {
+                        cycleText = 'ราย 6 เดือน';
+                        cycleShort = '6ด.';
+                    }
+                    
+                    return `
+                        <div class="flex items-center justify-between p-3.5 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/40 hover:bg-slate-100/60 dark:hover:bg-slate-800 transition-all">
+                            <div class="flex items-center space-x-3 overflow-hidden">
+                                <div class="w-10 h-10 shrink-0 rounded-xl bg-white dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700 text-brand-600 flex items-center justify-center font-bold text-base shadow-sm overflow-hidden p-1">
+                                    ${getServiceIcon(sub.name)}
+                                </div>
+                                <div class="truncate">
+                                    <div class="flex items-center space-x-2">
+                                        <h4 class="font-semibold text-sm truncate">${sub.name}</h4>
+                                        <span class="px-2 py-0.5 rounded-full text-[10px] font-medium shrink-0 ${badgeClass}">${badgeText}</span>
+                                    </div>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                                        <span class="font-medium text-slate-700 dark:text-slate-300">${sub.category}</span> • ตัดรอบ: ${formatDate(sub.date)} (${cycleText})
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3 shrink-0 ml-2">
+                                <div class="text-right">
+                                    <span class="font-bold text-sm">฿${sub.price.toLocaleString()}</span>
+                                    <span class="block text-[10px] text-slate-400">/${cycleShort}</span>
+                                </div>
+                                <div class="flex items-center space-x-1.5">
+                                    <button onclick="openModal('${sub.id}')" class="w-7 h-7 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-50 flex items-center justify-center text-xs transition-colors" title="แก้ไข">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </button>
+                                    <button onclick="deleteSub('${sub.id}')" class="w-7 h-7 rounded-lg bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-rose-500 hover:bg-rose-50 flex items-center justify-center text-xs transition-colors" title="ลบ">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            updateCategoryChart();
+        }
+
+        function updateCategoryChart() {
+            const categoryTotals = {};
+            subscriptions.forEach(sub => {
+                if (sub.status === 'active') {
+                    const cost = calculateMonthlyCost(sub);
+                    categoryTotals[sub.category] = (categoryTotals[sub.category] || 0) + cost;
+                }
+            });
+
+            const labels = Object.keys(categoryTotals);
+            const data = Object.values(categoryTotals);
+
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            
+            if (categoryChartInstance) {
+                categoryChartInstance.destroy();
+            }
+
+            const isDark = document.documentElement.classList.contains('dark');
+
+            if (labels.length === 0) {
+                categoryChartInstance = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['ไม่มีข้อมูล'],
+                        datasets: [{ data: [1], backgroundColor: [isDark ? '#334155' : '#e2e8f0'] }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } }
+                    }
+                });
+                return;
+            }
+
+            categoryChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: data,
+                        backgroundColor: [
+                            '#6366f1',
+                            '#10b981',
+                            '#f59e0b',
+                            '#ef4444',
+                            '#8b5cf6',
+                            '#ec4899'
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                boxWidth: 10,
+                                font: { family: 'Prompt', size: 10 },
+                                color: isDark ? '#94a3b8' : '#64748b'
+                            }
+                        }
+                    },
+                    cutout: '72%'
+                }
+            });
+        }
+
+        renderApp();
+    </script>
+</body>
+</html>
