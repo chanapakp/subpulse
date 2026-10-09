@@ -201,7 +201,6 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">ชื่อบริการ</label>
-                        <!-- text-base บนมือถือป้องกัน iOS ซูมจอค้าง -->
                         <input type="text" id="subName" required placeholder="เช่น Netflix, Spotify" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                     </div>
                     <div>
@@ -213,13 +212,18 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">รอบการจ่าย</label>
-                        <select id="subCycle" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <select id="subCycle" onchange="handleCycleChange()" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                             <option value="monthly">รายเดือน</option>
                             <option value="half-yearly">ราย 6 เดือน</option>
                             <option value="yearly">รายปี</option>
+                            <option value="custom">กำหนดเอง (ระบุจำนวนเดือน)</option>
                         </select>
                     </div>
-                    <div>
+                    <div id="customCycleContainer" class="hidden">
+                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">จ่ายทุกๆ กี่เดือน</label>
+                        <input type="number" min="1" id="subCustomMonths" placeholder="เช่น 4" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <div id="categoryContainer">
                         <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">หมวดหมู่</label>
                         <select id="subCategory" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                             <option value="บันเทิง">บันเทิง (Streaming, Game)</option>
@@ -304,11 +308,22 @@
             updateCategoryChart();
         }
 
+        function handleCycleChange() {
+            const cycle = document.getElementById('subCycle').value;
+            const customContainer = document.getElementById('customCycleContainer');
+            if (cycle === 'custom') {
+                customContainer.classList.remove('hidden');
+            } else {
+                customContainer.classList.add('hidden');
+            }
+        }
+
         function openModal(editId = null) {
             const modal = document.getElementById('subModal');
             const form = document.getElementById('subForm');
             form.reset();
             document.getElementById('subId').value = '';
+            document.getElementById('customCycleContainer').classList.add('hidden');
 
             if (editId) {
                 document.getElementById('modalTitle').innerText = 'แก้ไข Subscription';
@@ -318,6 +333,10 @@
                     document.getElementById('subName').value = sub.name;
                     document.getElementById('subPrice').value = sub.price;
                     document.getElementById('subCycle').value = sub.cycle;
+                    if (sub.cycle === 'custom') {
+                        document.getElementById('customCycleContainer').classList.remove('hidden');
+                        document.getElementById('subCustomMonths').value = sub.customMonths || 4;
+                    }
                     document.getElementById('subCategory').value = sub.category;
                     document.getElementById('subDate').value = sub.date;
                     document.getElementById('subStatus').value = sub.status;
@@ -367,17 +386,21 @@
             const name = document.getElementById('subName').value;
             const price = parseFloat(document.getElementById('subPrice').value);
             const cycle = document.getElementById('subCycle').value;
+            let customMonths = null;
+            if (cycle === 'custom') {
+                customMonths = parseInt(document.getElementById('subCustomMonths').value) || 1;
+            }
             const category = document.getElementById('subCategory').value;
             const date = document.getElementById('subDate').value;
             const status = document.getElementById('subStatus').value;
             const note = document.getElementById('subNote').value;
 
             if (id) {
-                subscriptions = subscriptions.map(s => s.id === id ? { id, name, price, cycle, category, date, status, note } : s);
+                subscriptions = subscriptions.map(s => s.id === id ? { id, name, price, cycle, customMonths, category, date, status, note } : s);
             } else {
                 const newSub = {
                     id: Date.now().toString(),
-                    name, price, cycle, category, date, status, note
+                    name, price, cycle, customMonths, category, date, status, note
                 };
                 subscriptions.push(newSub);
             }
@@ -404,6 +427,8 @@
                 return sub.price / 12;
             } else if (sub.cycle === 'half-yearly') {
                 return sub.price / 6;
+            } else if (sub.cycle === 'custom') {
+                return sub.price / (sub.customMonths || 1);
             }
             return sub.price;
         }
@@ -414,6 +439,8 @@
                 return sub.price;
             } else if (sub.cycle === 'half-yearly') {
                 return sub.price * 2;
+            } else if (sub.cycle === 'custom') {
+                return sub.price * (12 / (sub.customMonths || 1));
             }
             return sub.price * 12;
         }
@@ -526,6 +553,9 @@
                     } else if (sub.cycle === 'half-yearly') {
                         cycleText = 'ราย 6 เดือน';
                         cycleShort = '6ด.';
+                    } else if (sub.cycle === 'custom') {
+                        cycleText = `ทุก ${sub.customMonths} เดือน`;
+                        cycleShort = `${sub.customMonths}ด.`;
                     }
                     
                     return `
