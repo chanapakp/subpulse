@@ -201,7 +201,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">ชื่อบริการ</label>
-                        <input type="text" id="subName" required placeholder="เช่น Netflix, Spotify" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <input type="text" id="subName" required placeholder="เช่น Netflix, Office 365" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">ราคา (บาท)</label>
@@ -472,6 +472,9 @@
             else if (lowerName.includes('chatgpt') || lowerName.includes('openai')) domain = 'openai.com';
             else if (lowerName.includes('disney')) domain = 'disneyplus.com';
             else if (lowerName.includes('prime')) domain = 'amazon.com';
+            else if (lowerName.includes('office') || lowerName.includes('microsoft')) domain = 'microsoft.com';
+            else if (lowerName.includes('truevision') || lowerName.includes('true')) domain = 'truevisions.co.th';
+            else if (lowerName.includes('hbo') || lowerName.includes('max')) domain = 'max.com';
 
             if (domain) {
                 return `<img src="https://www.google.com/s2/favicons?domain=${domain}&sz=128" alt="${name}" class="w-full h-full object-cover rounded-xl" onerror="this.parentElement.innerHTML='${name.charAt(0).toUpperCase()}'">`;
