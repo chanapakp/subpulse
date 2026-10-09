@@ -37,6 +37,12 @@
     </script>
     <style>
         body { font-family: 'Prompt', 'Inter', sans-serif; }
+        /* บังคับไม่ให้ช่อง date ขยายเกินกรอบแม่บนมือถือ */
+        input[type="date"] {
+            max-width: 100%;
+            box-sizing: border-box;
+            -webkit-appearance: none;
+        }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-300">
@@ -227,7 +233,6 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">วันที่ตัดรอบ / ครบกำหนด</label>
-                        <!-- บังคับ w-full max-w-full box-border ควบคุมไม่ให้ล้นออกนอกกล่องบนมือถือ -->
                         <input type="date" id="subDate" required class="w-full max-w-full box-border px-3 sm:px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                     </div>
                     <div>
