@@ -2,7 +2,8 @@
 <html lang="th" class="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- ล็อกไม่ให้หน้าจอซูมเข้า/ออกเองบนมือถือตอนกดพิมพ์ -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SubPulse - บริหารจัดการ Subscription ของคุณ</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -195,7 +196,6 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">ชื่อบริการ</label>
-                        <!-- ใช้ text-base บนมือถือเพื่อป้องกัน iOS ซูมจอ -->
                         <input type="text" id="subName" required placeholder="เช่น Netflix, Spotify" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                     </div>
                     <div>
