@@ -195,24 +195,8 @@
                 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">เลือกบริการ</label>
-                        <select id="subSelectName" onchange="handleServiceSelection()" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
-                            <option value="Netflix Premium">Netflix Premium</option>
-                            <option value="Spotify Family">Spotify Family</option>
-                            <option value="YouTube Premium">YouTube Premium</option>
-                            <option value="Disney+ Hotstar">Disney+ Hotstar</option>
-                            <option value="HBO Max">HBO Max</option>
-                            <option value="TrueVisions NOW">TrueVisions NOW</option>
-                            <option value="Office 365">Office 365</option>
-                            <option value="GitHub Copilot">GitHub Copilot</option>
-                            <option value="Cloud Storage (iCloud)">Cloud Storage (iCloud)</option>
-                            <option value="ChatGPT Plus">ChatGPT Plus</option>
-                            <option value="other">อื่นๆ (พิมพ์ชื่อเอง)</option>
-                        </select>
-                    </div>
-                    <div id="customNameContainer" class="hidden">
-                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">ชื่อบริการ (ระบุเอง)</label>
-                        <input type="text" id="subCustomName" placeholder="เช่น บริการของฉัน" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">ชื่อบริการ</label>
+                        <input type="text" id="subName" required placeholder="เช่น Netflix, Office 365" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">ราคา (บาท)</label>
@@ -329,40 +313,19 @@
             }
         }
 
-        function handleServiceSelection() {
-            const select = document.getElementById('subSelectName').value;
-            const customContainer = document.getElementById('customNameContainer');
-            if (select === 'other') {
-                customContainer.classList.remove('hidden');
-            } else {
-                customContainer.classList.add('hidden');
-            }
-        }
-
         function openModal(editId = null) {
             const modal = document.getElementById('subModal');
             const form = document.getElementById('subForm');
             form.reset();
             document.getElementById('subId').value = '';
             document.getElementById('customCycleContainer').classList.add('hidden');
-            document.getElementById('customNameContainer').classList.add('hidden');
-
-            const dropdown = document.getElementById('subSelectName');
-            const knownServices = Array.from(dropdown.options).map(o => o.value).filter(v => v !== 'other');
 
             if (editId) {
                 document.getElementById('modalTitle').innerText = 'แก้ไข Subscription';
                 const sub = subscriptions.find(s => s.id === editId);
                 if (sub) {
                     document.getElementById('subId').value = sub.id;
-                    if (knownServices.includes(sub.name)) {
-                        dropdown.value = sub.name;
-                    } else {
-                        dropdown.value = 'other';
-                        document.getElementById('customNameContainer').classList.remove('hidden');
-                        document.getElementById('subCustomName').value = sub.name;
-                    }
-
+                    document.getElementById('subName').value = sub.name;
                     document.getElementById('subPrice').value = sub.price;
                     document.getElementById('subCycle').value = sub.cycle;
                     if (sub.cycle === 'custom') {
@@ -376,7 +339,6 @@
                 }
             } else {
                 document.getElementById('modalTitle').innerText = 'เพิ่ม Subscription ใหม่';
-                dropdown.value = 'Netflix Premium';
                 const today = new Date().toISOString().split('T')[0];
                 document.getElementById('subDate').value = today;
             }
@@ -416,12 +378,7 @@
         function handleFormSubmit(event) {
             event.preventDefault();
             const id = document.getElementById('subId').value;
-            const selectVal = document.getElementById('subSelectName').value;
-            let name = selectVal;
-            if (selectVal === 'other') {
-                name = document.getElementById('subCustomName').value.trim() || 'บริการอื่นๆ';
-            }
-
+            const name = document.getElementById('subName').value.trim();
             const price = parseFloat(document.getElementById('subPrice').value);
             const cycle = document.getElementById('subCycle').value;
             let customMonths = null;
