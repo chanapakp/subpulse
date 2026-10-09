@@ -37,12 +37,6 @@
     </script>
     <style>
         body { font-family: 'Prompt', 'Inter', sans-serif; }
-        /* บังคับไม่ให้ช่อง date ขยายเกินกรอบแม่บนมือถือ */
-        input[type="date"] {
-            max-width: 100%;
-            box-sizing: border-box;
-            -webkit-appearance: none;
-        }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-300">
@@ -159,9 +153,9 @@
                                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
                                     <i class="fa-solid fa-search text-xs"></i>
                                 </span>
-                                <input type="text" id="searchInput" oninput="renderApp()" placeholder="ค้นหาบริการ..." class="w-full sm:w-44 pl-8 pr-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                <input type="text" id="searchInput" oninput="renderApp()" placeholder="ค้นหาบริการ..." class="w-full sm:w-44 pl-8 pr-3 py-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                             </div>
-                            <select id="filterStatus" onchange="renderApp()" class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-brand-500">
+                            <select id="filterStatus" onchange="renderApp()" class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 rounded-xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                                 <option value="all">ทั้งหมด</option>
                                 <option value="active">Active</option>
                                 <option value="cancelled">ยกเลิก</option>
@@ -201,18 +195,19 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">ชื่อบริการ</label>
-                        <input type="text" id="subName" required placeholder="เช่น Netflix, Spotify" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <!-- ใช้ text-base บนมือถือเพื่อป้องกัน iOS ซูมจอ -->
+                        <input type="text" id="subName" required placeholder="เช่น Netflix, Spotify" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">ราคา (บาท)</label>
-                        <input type="number" step="0.01" min="0" id="subPrice" required placeholder="149" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <input type="number" step="0.01" min="0" id="subPrice" required placeholder="149" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">รอบการจ่าย</label>
-                        <select id="subCycle" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <select id="subCycle" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                             <option value="monthly">รายเดือน</option>
                             <option value="half-yearly">ราย 6 เดือน</option>
                             <option value="yearly">รายปี</option>
@@ -220,7 +215,7 @@
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">หมวดหมู่</label>
-                        <select id="subCategory" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <select id="subCategory" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                             <option value="บันเทิง">บันเทิง (Streaming, Game)</option>
                             <option value="การทำงาน">การทำงาน (Software, Cloud)</option>
                             <option value="ยูทิลิตี้">ยูทิลิตี้ (Internet, Phone)</option>
@@ -233,11 +228,11 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">วันที่ตัดรอบ / ครบกำหนด</label>
-                        <input type="date" id="subDate" required class="w-full max-w-full box-border px-3 sm:px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <input type="date" id="subDate" required class="w-full max-w-full box-border px-3 sm:px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">สถานะ</label>
-                        <select id="subStatus" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <select id="subStatus" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                             <option value="active">Active (ใช้งานอยู่)</option>
                             <option value="cancelled">Cancelled (ยกเลิกแล้ว)</option>
                         </select>
@@ -246,7 +241,7 @@
 
                 <div>
                     <label class="block text-xs font-medium text-slate-600 dark:text-slate-400 mb-1">โน้ตเพิ่มเติม (ถ้ามี)</label>
-                    <input type="text" id="subNote" placeholder="เช่น แชร์กับเพื่อน 4 คน" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    <input type="text" id="subNote" placeholder="เช่น แชร์กับเพื่อน 4 คน" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                 </div>
 
                 <div class="flex items-center justify-end space-x-3 pt-4">
